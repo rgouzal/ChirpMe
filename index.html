@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realistic Cockatiel Communication - Scientific Implementation</title>
+    <title>Realistic Cockatiel Communication - Standalone</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -113,16 +113,6 @@
             color: #721c24;
         }
         
-        .spectrogram {
-            width: 100%;
-            height: 200px;
-            background: #000;
-            border-radius: 8px;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
         .frequency-info {
             background: #e3f2fd;
             padding: 20px;
@@ -145,57 +135,10 @@
             border: 2px solid #2196F3;
         }
         
-        .research-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #28a745;
-        }
-        
-        .scientific-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .feature {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 2px solid #28a745;
-        }
-        
-        .feature h4 {
-            margin: 0 0 10px 0;
-            color: #28a745;
-        }
-        
-        .error-log {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 12px;
-        }
-        
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
+            body { padding: 10px; }
+            .container { padding: 20px; }
+            h1 { font-size: 2em; }
         }
     </style>
 </head>
@@ -204,7 +147,7 @@
         <h1>🦜 Realistic Cockatiel Communication</h1>
         
         <div class="research-badge">
-            🔬 Based on 2024 Scientific Research | PMC8415583, ECOGEN AI, Cornell Bird Synth
+            🔬 Scientific Implementation | Standalone Version
         </div>
         
         <div id="status" class="status initializing">
@@ -229,20 +172,13 @@
             </div>
             
             <div class="control-group">
-                <h3>⚙️ Synthesis Settings</h3>
+                <h3>⚙️ Settings</h3>
                 <label>Intensity: <span id="intensity-value">70%</span></label>
                 <input type="range" id="intensity" min="0.1" max="1.0" step="0.1" value="0.7" oninput="updateIntensity()">
                 
                 <label>Pitch Variation: <span id="pitch-value">10%</span></label>
                 <input type="range" id="pitch" min="0" max="0.5" step="0.05" value="0.1" oninput="updatePitch()">
-                
-                <label>FM Modulation: <span id="fm-value">30%</span></label>
-                <input type="range" id="fm" min="0" max="1.0" step="0.1" value="0.3" oninput="updateFM()">
             </div>
-        </div>
-        
-        <div class="spectrogram" id="spectrogram">
-            <canvas id="spectrogramCanvas" width="800" height="200"></canvas>
         </div>
         
         <div class="frequency-info">
@@ -270,52 +206,341 @@
                 </div>
             </div>
         </div>
-        
-        <div class="research-info">
-            <h3>🔬 Scientific Implementation Features</h3>
-            <div class="scientific-features">
-                <div class="feature">
-                    <h4>Harmonic Synthesis</h4>
-                    <p>Multi-harmonic content (1x, 2x, 3x, 4x) with exponential decay for realistic timbre</p>
-                </div>
-                <div class="feature">
-                    <h4>Mathematical Curves</h4>
-                    <p>Sine, quadratic, and exponential frequency sweeps based on actual bird analysis</p>
-                </div>
-                <div class="feature">
-                    <h4>Negative Mean Asynchrony</h4>
-                    <p>Birds start singing 135ms before playback (PMC8415583 research)</p>
-                </div>
-                <div class="feature">
-                    <h4>Formant Filtering</h4>
-                    <p>Resonant emphasis at 3kHz to simulate natural vocal tract filtering</p>
-                </div>
-                <div class="feature">
-                    <h4>AM+FM Modulation</h4>
-                    <p>Amplitude and frequency modulation for rich, natural-sounding calls</p>
-                </div>
-                <div class="feature">
-                    <h4>Environmental Context</h4>
-                    <p>Band-limited noise and resonance simulation for realistic playback</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="error-log" id="errorLog" style="display: none;"></div>
     </div>
 
-    <script src="realistic-cockatiel-sounds.js"></script>
     <script>
+        /**
+         * Realistic Cockatiel Sound Generator
+         * Based on 2024 scientific research
+         */
+        class RealisticCockatielSound {
+            constructor() {
+                this.sampleRate = 44100;
+                this.context = null;
+                this.currentTime = 0;
+                
+                // Scientifically-derived cockatiel frequency ranges
+                this.cockatielFreq = {
+                    contact: { min: 1100, max: 1950 },
+                    alarm: { min: 500, max: 4000 },
+                    greeting: { min: 1400, max: 4600 },
+                    feeding: { min: 2000, max: 7000 },
+                    whistle: { min: 1500, max: 3500 }
+                };
+                
+                // Advanced synthesis parameters
+                this.synthesisParams = {
+                    fmIndex: 0.3,
+                    harmonicSeries: [1, 2, 3, 4],
+                    noiseLevel: 0.05,
+                    formantFreq: 3000,
+                    formantWidth: 0.05,
+                    envelopeShape: 'quadratic'
+                };
+                
+                // Temporal parameters based on research
+                this.timing = {
+                    componentDuration: 130,
+                    rampSamples: 1000,
+                    gapStart: 50,
+                    gapEnd: 300,
+                    negativeAsynchrony: -135
+                };
+            }
+
+            async init() {
+                if (!this.context) {
+                    this.context = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                return this.context;
+            }
+
+            /**
+             * Generate a realistic contact call
+             */
+            async generateContactCall(options = {}) {
+                await this.init();
+                
+                const {
+                    intensity = 0.7,
+                    pitchVariation = 0.1,
+                    duration = 2000
+                } = options;
+
+                const buffer = this.context.createBuffer(1, duration * this.sampleRate / 1000, this.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                let bufferIndex = 0;
+                const samplesPerMS = this.sampleRate / 1000;
+                
+                // Generate "swoop + chirp + silence" sequences
+                const sequences = Math.floor(duration / (this.timing.componentDuration * 3));
+                
+                for (let seq = 0; seq < sequences; seq++) {
+                    // SWOOP: Low frequency beginning
+                    const swoopStartFreq = this.cockatielFreq.contact.min * (1 + (Math.random() - 0.5) * pitchVariation);
+                    const swoopEndFreq = 2000 * (1 + (Math.random() - 0.5) * pitchVariation);
+                    const swoopSamples = this.timing.componentDuration * samplesPerMS;
+                    
+                    this.addFrequencySweep(data, bufferIndex, swoopSamples, swoopStartFreq, swoopEndFreq, 'sine', intensity * 0.8);
+                    bufferIndex += swoopSamples;
+                    
+                    // CHIRP: Rapid frequency increase
+                    const chirpStartFreq = swoopEndFreq;
+                    const chirpEndFreq = this.cockatielFreq.contact.max * (1 + (Math.random() - 0.5) * pitchVariation);
+                    const chirpSamples = this.timing.componentDuration * samplesPerMS;
+                    
+                    this.addFrequencySweep(data, bufferIndex, chirpSamples, chirpStartFreq, chirpEndFreq, 'quadratic', intensity);
+                    bufferIndex += chirpSamples;
+                    
+                    // SILENCE: Natural gap
+                    bufferIndex += chirpSamples;
+                    
+                    if (seq < sequences - 1) {
+                        bufferIndex += Math.random() * 1000 * samplesPerMS;
+                    }
+                }
+
+                return buffer;
+            }
+
+            /**
+             * Generate alarm call
+             */
+            async generateAlarmCall(options = {}) {
+                await this.init();
+                
+                const { intensity = 0.9, duration = 1500 } = options;
+
+                const buffer = this.context.createBuffer(1, duration * this.sampleRate / 1000, this.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                const sweeps = 8;
+                const sweepDuration = duration / sweeps;
+                
+                for (let i = 0; i < sweeps; i++) {
+                    const startFreq = this.cockatielFreq.alarm.min + Math.random() * 500;
+                    const endFreq = this.cockatielFreq.alarm.max - Math.random() * 1000;
+                    const sweepIntensity = intensity * (1 - i * 0.1) * (0.7 + Math.random() * 0.3);
+                    
+                    this.addFrequencySweep(data, i * sweepDuration * this.sampleRate / 1000, sweepDuration * this.sampleRate / 1000, startFreq, endFreq, 'exponential', sweepIntensity);
+                }
+                
+                return buffer;
+            }
+
+            /**
+             * Generate greeting whistle
+             */
+            async generateGreetingWhistle(options = {}) {
+                await this.init();
+                
+                const { melody = 'rising', duration = 3000, pitch = 0.5 } = options;
+
+                const buffer = this.context.createBuffer(1, duration * this.sampleRate / 1000, this.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                const baseFreq = this.cockatielFreq.whistle.min + pitch * (this.cockatielFreq.whistle.max - this.cockatielFreq.whistle.min);
+                
+                this.addHarmonicWhistle(data, 0, duration * this.sampleRate / 1000, baseFreq, baseFreq * 1.5, 'linear');
+                
+                return buffer;
+            }
+
+            /**
+             * Generate feeding call
+             */
+            async generateFeedingCall(options = {}) {
+                await this.init();
+                
+                const { excitement = 0.8, duration = 1000 } = options;
+
+                const buffer = this.context.createBuffer(1, duration * this.sampleRate / 1000, this.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                const chirps = Math.floor(duration / 200);
+                for (let i = 0; i < chirps; i++) {
+                    const startTime = i * 200;
+                    const chirpFreq = this.cockatielFreq.feeding.min + Math.random() * (this.cockatielFreq.feeding.max - this.cockatielFreq.feeding.min);
+                    
+                    this.addShortChirp(data, startTime * this.sampleRate / 1000, 150 * this.sampleRate / 1000, chirpFreq * 0.8, chirpFreq * 1.2, excitement * (0.6 + Math.random() * 0.4));
+                }
+                
+                return buffer;
+            }
+
+            /**
+             * Core synthesis function
+             */
+            addFrequencySweep(data, startIndex, duration, startFreq, endFreq, curveType, intensity) {
+                const samplesPerMS = this.sampleRate / 1000;
+                const rampSamples = this.timing.rampSamples;
+                
+                for (let i = 0; i < duration; i++) {
+                    const progress = i / duration;
+                    
+                    let frequency;
+                    switch (curveType) {
+                        case 'sine':
+                            frequency = startFreq + (endFreq - startFreq) * Math.sin(progress * Math.PI);
+                            break;
+                        case 'quadratic':
+                            frequency = startFreq + (endFreq - startFreq) * (progress * progress);
+                            break;
+                        case 'exponential':
+                            frequency = startFreq * Math.pow(endFreq / startFreq, progress);
+                            break;
+                        default:
+                            frequency = startFreq + (endFreq - startFreq) * progress;
+                    }
+                    
+                    // Add FM modulation
+                    const fmModulation = Math.sin(i * 2 * Math.PI * frequency * this.synthesisParams.fmIndex / this.sampleRate) * 0.1;
+                    frequency += fmModulation;
+                    
+                    // Generate harmonic content
+                    let sample = 0;
+                    for (let harmonic of this.synthesisParams.harmonicSeries) {
+                        const harmonicFreq = frequency * harmonic;
+                        const harmonicAmp = intensity * (1 / harmonic) * Math.exp(-(harmonic - 1) * 0.3);
+                        sample += Math.sin(2 * Math.PI * harmonicFreq * (startIndex + i) / this.sampleRate) * harmonicAmp;
+                    }
+                    
+                    // Apply envelope
+                    let envelope = intensity;
+                    if (i < rampSamples) {
+                        envelope *= i / rampSamples;
+                    } else if (i > duration - rampSamples) {
+                        envelope *= (duration - i) / rampSamples;
+                    }
+                    
+                    data[startIndex + i] = sample * envelope * 0.3;
+                }
+            }
+
+            /**
+             * Add harmonic whistle
+             */
+            addHarmonicWhistle(data, startIndex, duration, startFreq, endFreq, curveType) {
+                const samplesPerMS = this.sampleRate / 1000;
+                
+                for (let i = 0; i < duration; i++) {
+                    const progress = i / duration;
+                    
+                    let frequency;
+                    if (curveType === 'linear') {
+                        frequency = startFreq + (endFreq - startFreq) * progress;
+                    } else {
+                        frequency = startFreq;
+                    }
+                    
+                    let sample = 0;
+                    for (let harmonic = 1; harmonic <= 6; harmonic++) {
+                        const harmonicFreq = frequency * harmonic;
+                        const amplitude = (1 / harmonic) * Math.exp(-(harmonic - 1) * 0.2);
+                        sample += Math.sin(2 * Math.PI * harmonicFreq * (startIndex + i) / this.sampleRate) * amplitude;
+                    }
+                    
+                    const formantGain = this.getFormantGain(frequency, this.synthesisParams.formantFreq);
+                    data[startIndex + i] = sample * formantGain * 0.2;
+                }
+            }
+
+            /**
+             * Add short chirp
+             */
+            addShortChirp(data, startIndex, duration, startFreq, endFreq, intensity) {
+                for (let i = 0; i < duration; i++) {
+                    const progress = i / duration;
+                    const frequency = startFreq + (endFreq - startFreq) * progress;
+                    
+                    let sample = Math.sin(2 * Math.PI * frequency * (startIndex + i) / this.sampleRate);
+                    const envelope = Math.sin(progress * Math.PI);
+                    data[startIndex + i] = sample * envelope * intensity * 0.4;
+                }
+            }
+
+            /**
+             * Get formant gain
+             */
+            getFormantGain(frequency, centerFreq) {
+                const width = this.synthesisParams.formantWidth;
+                const diff = Math.abs(frequency - centerFreq) / centerFreq;
+                return 1 + 2 * Math.exp(-diff * diff / (width * width));
+            }
+
+            /**
+             * Play generated sound buffer
+             */
+            async playBuffer(buffer, options = {}) {
+                const { playbackRate = 1.0, volume = 0.7, loop = false, startTime = this.context.currentTime } = options;
+
+                const source = this.context.createBufferSource();
+                source.buffer = buffer;
+                source.playbackRate.value = playbackRate;
+                source.loop = loop;
+                
+                const gainNode = this.context.createGain();
+                gainNode.gain.value = volume;
+                
+                source.connect(gainNode);
+                gainNode.connect(this.context.destination);
+                
+                source.start(startTime);
+                return source;
+            }
+
+            /**
+             * Generate conversation pattern
+             */
+            async generateConversationPattern(intent, responses = 3) {
+                const conversation = [];
+                
+                for (let i = 0; i < responses; i++) {
+                    let callBuffer;
+                    
+                    switch (intent) {
+                        case 'greeting':
+                            callBuffer = await this.generateGreetingWhistle({
+                                melody: i % 2 === 0 ? 'rising' : 'wavy',
+                                duration: 2000 + Math.random() * 1000
+                            });
+                            break;
+                        case 'feeding':
+                            callBuffer = await this.generateFeedingCall({
+                                excitement: 0.6 + Math.random() * 0.4,
+                                duration: 800 + Math.random() * 400
+                            });
+                            break;
+                        case 'contact':
+                            callBuffer = await this.generateContactCall({
+                                duration: 1200 + Math.random() * 600
+                            });
+                            break;
+                        default:
+                            callBuffer = await this.generateContactCall();
+                    }
+                    
+                    conversation.push(callBuffer);
+                    
+                    if (i < responses - 1) {
+                        const gapBuffer = this.context.createBuffer(1, 1000 * this.sampleRate / 1000, this.sampleRate);
+                        conversation.push(gapBuffer);
+                    }
+                }
+                
+                return conversation;
+            }
+        }
+
+        // Main application code
         let cockatielSound;
         let currentSources = [];
-        let spectrogramData = [];
         
-        // Initialize the realistic sound generator
         async function initialize() {
             try {
                 updateStatus('initializing', 'Initializing realistic bird sound synthesis...');
                 
-                // Check Web Audio API support
                 if (!window.AudioContext && !window.webkitAudioContext) {
                     throw new Error('Web Audio API not supported in this browser');
                 }
@@ -324,18 +549,13 @@
                 await cockatielSound.init();
                 
                 updateStatus('ready', 'Ready! Realistic cockatiel sounds loaded. Birds should respond to these scientifically-accurate calls.');
-                logMessage('✅ Realistic Cockatiel Sound Generator initialized successfully');
-                logMessage('📊 Implementation based on: PMC8415583, ECOGEN AI, Cornell Bird Synth');
-                logMessage('🎵 Features: Harmonic synthesis, FM modulation, mathematical curves');
                 
             } catch (error) {
                 updateStatus('error', 'Error: ' + error.message);
-                logMessage('❌ Error: ' + error.message);
                 console.error('Initialization error:', error);
             }
         }
         
-        // Play individual calls
         async function playContactCall() {
             try {
                 updateStatus('playing', 'Playing realistic contact call...');
@@ -354,8 +574,7 @@
             try {
                 updateStatus('playing', 'Playing alarm call...');
                 const buffer = await cockatielSound.generateAlarmCall({
-                    intensity: parseFloat(document.getElementById('intensity').value),
-                    urgency: 0.8
+                    intensity: parseFloat(document.getElementById('intensity').value)
                 });
                 await playBuffer(buffer);
                 updateStatus('ready', 'Alarm call played.');
@@ -368,8 +587,7 @@
             try {
                 updateStatus('playing', 'Playing greeting whistle...');
                 const buffer = await cockatielSound.generateGreetingWhistle({
-                    melody: 'rising',
-                    pitch: 0.5
+                    melody: 'rising'
                 });
                 await playBuffer(buffer);
                 updateStatus('ready', 'Greeting whistle played.');
@@ -391,20 +609,16 @@
             }
         }
         
-        // Play conversation patterns
         async function playConversation(type) {
             try {
                 updateStatus('playing', `Playing ${type} conversation sequence...`);
                 const buffers = await cockatielSound.generateConversationPattern(type, 3);
                 
                 let startTime = cockatielSound.context.currentTime;
-                for (let i = 0; i < buffers.length; i++) {
-                    const source = await cockatielSound.playBuffer(buffers[i], {
-                        startTime: startTime,
-                        volume: 0.7
-                    });
+                for (let buffer of buffers) {
+                    const source = await cockatielSound.playBuffer(buffer, { startTime: startTime, volume: 0.7 });
                     currentSources.push(source);
-                    startTime += buffers[i].duration / cockatielSound.sampleRate;
+                    startTime += buffer.duration / cockatielSound.sampleRate;
                 }
                 
                 updateStatus('ready', `${type} conversation sequence completed.`);
@@ -413,89 +627,14 @@
             }
         }
         
-        // Play buffer helper
         async function playBuffer(buffer) {
             const source = await cockatielSound.playBuffer(buffer, {
                 volume: parseFloat(document.getElementById('intensity').value)
             });
             currentSources.push(source);
-            
-            // Update FM parameter
-            cockatielSound.synthesisParams.fmIndex = parseFloat(document.getElementById('fm').value);
-            
-            // Generate spectrogram visualization
-            generateSpectrogram(buffer);
-            
             return source;
         }
         
-        // Generate spectrogram visualization
-        function generateSpectrogram(buffer) {
-            spectrogramData = cockatielSound.createSpectrogramData(buffer);
-            drawSpectrogram();
-        }
-        
-        // Draw spectrogram on canvas
-        function drawSpectrogram() {
-            const canvas = document.getElementById('spectrogramCanvas');
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-            
-            // Clear canvas
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, width, height);
-            
-            if (spectrogramData.length === 0) return;
-            
-            const timeStep = width / spectrogramData.length;
-            const freqStep = height / 256;
-            
-            spectrogramData.forEach((frame, timeIndex) => {
-                frame.spectrum.forEach((magnitude, freqIndex) => {
-                    const intensity = magnitude / 255;
-                    const color = getHeatmapColor(intensity);
-                    
-                    ctx.fillStyle = color;
-                    ctx.fillRect(
-                        timeIndex * timeStep,
-                        height - (freqIndex + 1) * freqStep,
-                        timeStep,
-                        freqStep
-                    );
-                });
-            });
-        }
-        
-        // Get heatmap color for spectrogram
-        function getHeatmapColor(intensity) {
-            const colors = [
-                [0, 0, 0],
-                [0, 0, 255],
-                [0, 255, 255],
-                [0, 255, 0],
-                [255, 255, 0],
-                [255, 0, 0]
-            ];
-            
-            const index = Math.floor(intensity * (colors.length - 1));
-            const fraction = intensity * (colors.length - 1) - index;
-            
-            if (index >= colors.length - 1) {
-                return `rgb(${colors[colors.length - 1].join(',')})`;
-            }
-            
-            const color1 = colors[index];
-            const color2 = colors[index + 1];
-            
-            const r = Math.round(color1[0] + fraction * (color2[0] - color1[0]));
-            const g = Math.round(color1[1] + fraction * (color2[1] - color1[1]));
-            const b = Math.round(color1[2] + fraction * (color2[2] - color1[2]));
-            
-            return `rgb(${r},${g},${b})`;
-        }
-        
-        // Control functions
         function updateIntensity() {
             const value = document.getElementById('intensity').value;
             document.getElementById('intensity-value').textContent = Math.round(value * 100) + '%';
@@ -506,51 +645,29 @@
             document.getElementById('pitch-value').textContent = Math.round(value * 100) + '%';
         }
         
-        function updateFM() {
-            const value = document.getElementById('fm').value;
-            document.getElementById('fm-value').textContent = Math.round(value * 100) + '%';
-            if (cockatielSound) {
-                cockatielSound.synthesisParams.fmIndex = parseFloat(value);
-            }
-        }
-        
         function stopAllSounds() {
             currentSources.forEach(source => {
-                try {
-                    source.stop();
-                } catch (e) {
-                    // Source might already be stopped
-                }
+                try { source.stop(); } catch (e) {}
             });
             currentSources = [];
             updateStatus('ready', 'All sounds stopped.');
         }
         
-        // Status and error handling
         function updateStatus(type, message) {
             const status = document.getElementById('status');
             status.className = 'status ' + type;
             status.textContent = message;
         }
         
-        function logMessage(message) {
-            const errorLog = document.getElementById('errorLog');
-            errorLog.style.display = 'block';
-            const timestamp = new Date().toLocaleTimeString();
-            errorLog.innerHTML += `[${timestamp}] ${message}<br>`;
-            errorLog.scrollTop = errorLog.scrollHeight;
-        }
-        
         function handleError(context, error) {
             updateStatus('error', 'Error in ' + context + ': ' + error.message);
-            logMessage(`❌ ${context}: ${error.message}`);
             console.error(context + ' error:', error);
         }
         
         // Initialize when page loads
         window.addEventListener('load', initialize);
         
-        // Resume audio context on user interaction (required by browsers)
+        // Resume audio context on user interaction
         document.addEventListener('click', () => {
             if (cockatielSound && cockatielSound.context.state === 'suspended') {
                 cockatielSound.context.resume();
